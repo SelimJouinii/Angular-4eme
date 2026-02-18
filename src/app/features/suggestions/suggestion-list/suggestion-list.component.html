@@ -52,6 +52,11 @@
           <span class="btn-icon">⭐</span>
           {{ s.isFavorite ? 'Favori' : 'Ajouter' }}
         </button>
+        <!-- BOUTON DÉTAILS AJOUTÉ ICI -->
+        <button [routerLink]="['/suggestions', s.id]" class="btn-details">
+          <span class="btn-icon">🔍</span>
+          Détails
+        </button>
       </div>
       <div class="refused-message" *ngIf="s.status === 'refuse'">
         ⛔ Suggestion non disponible
