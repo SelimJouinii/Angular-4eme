@@ -5,23 +5,24 @@
     <p class="subtitle">Découvrez et votez pour les meilleures idées</p>
   </div>
 
-  <!-- Barre de recherche élégante -->
-  <div class="search-section">
-    <div class="search-wrapper">
-      <input 
-        type="text" 
-        [(ngModel)]="searchTerm" 
-        placeholder="Rechercher une suggestion..."
-        class="search-input"
-      >
-      <span class="search-icon">🔍</span>
-    </div>
-    
-    <select [(ngModel)]="filteredCategory" class="category-select">
-      <option value="">Toutes les catégories</option>
-      <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-    </select>
+<!-- Barre de recherche élégante -->
+<div class="search-section">
+  <div class="search-wrapper">
+    <input 
+      type="text" 
+      [(ngModel)]="searchTerm" 
+      (ngModelChange)="applyFilters()"
+      placeholder="Rechercher une suggestion..."
+      class="search-input"
+    >
+    <span class="search-icon">🔍</span>
   </div>
+  
+  <select [(ngModel)]="filteredCategory" (ngModelChange)="applyFilters()" class="category-select">
+    <option value="all">Toutes les catégories</option>
+    <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+  </select>
+</div>
 
   <!-- Grille de suggestions -->
   <div class="suggestions-grid">

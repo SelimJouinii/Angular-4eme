@@ -1,84 +1,120 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { SuggestionService } from '../../features/suggestions/suggestion.service';
 import { Suggestion } from '../../models/suggestion';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-list-suggestion',
   templateUrl: './list-suggestion.component.html',
-  styleUrl: './list-suggestion.component.css'
+  styleUrls: ['./list-suggestion.component.css']
 })
-export class ListSuggestionComponent {
-  suggestions: Suggestion[] = [
-    { 
-      id: 1, 
-      title: 'Organiser une journée team building', 
-      description: 'Suggestion pour organiser une journée de team building pour renforcer les liens entre les membres de l\'équipe.', 
-      category: 'Événements', 
-      date: new Date('2025-01-20'), 
-      status: 'acceptée', 
-      nbLikes: 10,
-      isFavorite: false
-    },
-    { 
-      id: 2, 
-      title: 'Améliorer le système de réservation', 
-      description: 'Proposition pour améliorer la gestion des réservations en ligne avec un système de confirmation automatique.', 
-      category: 'Technologie', 
-      date: new Date('2025-01-15'), 
-      status: 'refuse', 
-      nbLikes: 0,
-      isFavorite: false
-    },
-    { 
-      id: 3, 
-      title: 'Créer un système de récompenses', 
-      description: 'Mise en place d\'un programme de récompenses pour motiver les employés et reconnaître leurs efforts.', 
-      category: 'Ressources Humaines', 
-      date: new Date('2025-01-25'), 
-      status: 'refuse', 
-      nbLikes: 0,
-      isFavorite: false
-    },
-    { 
-      id: 4, 
-      title: 'Moderniser l\'interface utilisateur', 
-      description: 'Refonte complète de l\'interface utilisateur pour une meilleure expérience utilisateur.', 
-      category: 'Technologie', 
-      date: new Date('2025-01-30'), 
-      status: 'en_attente', 
-      nbLikes: 0,
-      isFavorite: false
-    }
+export class ListSuggestionComponent implements OnInit, OnDestroy {
+  suggestions: Suggestion[] = [];
+  filteredSuggestions: Suggestion[] = [];
+  favorites: Suggestion[] = [];
+  searchTerm: string = '';
+  filteredCategory: string = 'all';
+  private subscription: Subscription = new Subscription();
+  
+  categories: string[] = [
+    'all',
+    'Infrastructure et bâtiments',
+    'Technologie et services numériques',
+    'Restauration et cafétéria',
+    'Hygiène et environnement',
+    'Transport et mobilité',
+    'Activités et événements',
+    'Sécurité',
+    'Communication interne',
+    'Accessibilité',
+    'Autre'
   ];
 
-  searchTerm: string = '';
-  filteredCategory: string = '';
-  favorites: Suggestion[] = [];
+  constructor(private suggestionService: SuggestionService) {}
 
-  // Méthode pour incrémenter les likes
-  likeSuggestion(suggestion: Suggestion): void {
-    suggestion.nbLikes++;
-  }
-
-  // Méthode pour ajouter aux favoris
-  addToFavorites(suggestion: Suggestion): void {
-    if (!this.favorites.includes(suggestion)) {
-      this.favorites.push(suggestion);
-      suggestion.isFavorite = true;
-    }
-  }
-
-  // Méthode pour filtrer les suggestions
-  get filteredSuggestions(): Suggestion[] {
-    return this.suggestions.filter(suggestion => {
-      const matchesSearch = suggestion.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                           suggestion.description.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const matchesCategory = !this.filteredCategory || suggestion.category === this.filteredCategory;
-      return matchesSearch && matchesCategory;
+  ngOnInit(): void {
+    this.subscription = this.suggestionService.getSuggestions().subscribe((suggestions: Suggestion[]) => {
+      console.log('Received suggestions:', suggestions);
+      this.suggestions = suggestions;
+      this.applyFilters(); // Apply filters whenever suggestions change
     });
   }
 
-  // Récupérer les catégories uniques pour le filtre
-  get categories(): string[] {
-    return [...new Set(this.suggestions.map(s => s.category))];
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+
+  applyFilters(): void {
+    if (!this.suggestions || this.suggestions.length === 0) {
+      this.filteredSuggestions = [];
+      return;
+    }
+
+    console.log('Applying filters - Search:', this.searchTerm, 'Category:', this.filteredCategory);
+    
+    this.filteredSuggestions = this.suggestions.filter(suggestion => {
+      // Search filter
+      const matchesSearch = this.searchTerm === '' || 
+        suggestion.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        suggestion.description.toLowerCase().includes(this.searchTerm.toLowerCase());
+      
+      // Category filter
+      const matchesCategory = this.filteredCategory === 'all' || 
+                            suggestion.category === this.filteredCategory;
+      
+      return matchesSearch && matchesCategory;
+    });
+
+    console.log('Filtered suggestions:', this.filteredSuggestions);
+  }
+
+  onSearch(event: any): void {
+    this.searchTerm = event.target.value;
+    this.applyFilters();
+  }
+
+  onCategoryChange(event: any): void {
+    this.filteredCategory = event.target.value;
+    this.applyFilters();
+  }
+
+  resetFilters(): void {
+    this.searchTerm = '';
+    this.filteredCategory = 'all';
+    this.applyFilters();
+    
+    // Reset input fields if they exist
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    if (searchInput) searchInput.value = '';
+    
+    const categorySelect = document.getElementById('categorySelect') as HTMLSelectElement;
+    if (categorySelect) categorySelect.value = 'all';
+  }
+
+  likeSuggestion(suggestion: Suggestion): void {
+    console.log('Liking suggestion:', suggestion);
+    suggestion.nbLikes = (suggestion.nbLikes || 0) + 1;
+  }
+
+  addToFavorites(suggestion: Suggestion): void {
+    console.log('Adding to favorites:', suggestion);
+    if (!this.favorites.find(f => f.id === suggestion.id)) {
+      this.favorites.push(suggestion);
+    }
+  }
+
+  isFavorite(suggestion: Suggestion): boolean {
+    return this.favorites.some(f => f.id === suggestion.id);
+  }
+
+  getStatusClass(status: string): string {
+    switch(status) {
+      case 'acceptée': return 'badge-success';
+      case 'refuse': return 'badge-danger';
+      case 'en_attente': return 'badge-warning';
+      default: return 'badge-secondary';
+    }
   }
 }

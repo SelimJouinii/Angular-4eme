@@ -1,84 +1,59 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { SuggestionService } from '../suggestion.service';
 import { Suggestion } from '../../../models/suggestion';
 
 @Component({
   selector: 'app-list-suggestion',
-  templateUrl: './suggestion-list.component.html',
-  styleUrl: './suggestion-list.component.css'
+  templateUrl: './list-suggestion.component.html',
+  styleUrls: ['./list-suggestion.component.css']
 })
-export class ListSuggestionComponent {
-  suggestions: Suggestion[] = [
-    { 
-      id: 1, 
-      title: 'Organiser une journée team building', 
-      description: 'Suggestion pour organiser une journée de team building pour renforcer les liens entre les membres de l\'équipe.', 
-      category: 'Événements', 
-      date: new Date('2025-01-20'), 
-      status: 'acceptée', 
-      nbLikes: 10,
-      isFavorite: false
-    },
-    { 
-      id: 2, 
-      title: 'Améliorer le système de réservation', 
-      description: 'Proposition pour améliorer la gestion des réservations en ligne avec un système de confirmation automatique.', 
-      category: 'Technologie', 
-      date: new Date('2025-01-15'), 
-      status: 'refuse', 
-      nbLikes: 0,
-      isFavorite: false
-    },
-    { 
-      id: 3, 
-      title: 'Créer un système de récompenses', 
-      description: 'Mise en place d\'un programme de récompenses pour motiver les employés et reconnaître leurs efforts.', 
-      category: 'Ressources Humaines', 
-      date: new Date('2025-01-25'), 
-      status: 'refuse', 
-      nbLikes: 0,
-      isFavorite: false
-    },
-    { 
-      id: 4, 
-      title: 'Moderniser l\'interface utilisateur', 
-      description: 'Refonte complète de l\'interface utilisateur pour une meilleure expérience utilisateur.', 
-      category: 'Technologie', 
-      date: new Date('2025-01-30'), 
-      status: 'en_attente', 
-      nbLikes: 0,
-      isFavorite: false
-    }
+export class ListSuggestionComponent implements OnInit {
+  suggestions: Suggestion[] = [];
+  filteredSuggestions: Suggestion[] = [];
+  searchTerm: string = '';
+  filteredCategory: string = 'all';
+  categories: string[] = [
+    'all',
+    'Infrastructure et bâtiments',
+    'Technologie et services numériques',
+    'Restauration et cafétéria',
+    'Hygiène et environnement',
+    'Transport et mobilité',
+    'Activités et événements',
+    'Sécurité',
+    'Communication interne',
+    'Accessibilité',
+    'Autre'
   ];
 
-  searchTerm: string = '';
-  filteredCategory: string = '';
-  favorites: Suggestion[] = [];
+  constructor(private suggestionService: SuggestionService) {}
 
-  // Méthode pour incrémenter les likes
-  likeSuggestion(suggestion: Suggestion): void {
-    suggestion.nbLikes++;
+  ngOnInit(): void {
+    this.suggestionService.getSuggestions().subscribe(suggestions => {
+      this.suggestions = suggestions;
+      this.applyFilters();
+    });
   }
 
-  // Méthode pour ajouter aux favoris
-  addToFavorites(suggestion: Suggestion): void {
-    if (!this.favorites.includes(suggestion)) {
-      this.favorites.push(suggestion);
-      suggestion.isFavorite = true;
-    }
-  }
-
-  // Méthode pour filtrer les suggestions
-  get filteredSuggestions(): Suggestion[] {
-    return this.suggestions.filter(suggestion => {
+  applyFilters(): void {
+    this.filteredSuggestions = this.suggestions.filter(suggestion => {
       const matchesSearch = suggestion.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
                            suggestion.description.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const matchesCategory = !this.filteredCategory || suggestion.category === this.filteredCategory;
+      const matchesCategory = this.filteredCategory === 'all' || suggestion.category === this.filteredCategory;
       return matchesSearch && matchesCategory;
     });
   }
 
-  // Récupérer les catégories uniques pour le filtre
-  get categories(): string[] {
-    return [...new Set(this.suggestions.map(s => s.category))];
+  onSearch(): void {
+    this.applyFilters();
+  }
+
+  onCategoryChange(): void {
+    this.applyFilters();
+  }
+
+  likeSuggestion(id: number): void {
+    // Implement like functionality if needed
+    console.log('Like suggestion:', id);
   }
 }

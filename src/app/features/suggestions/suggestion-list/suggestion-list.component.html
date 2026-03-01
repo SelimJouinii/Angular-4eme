@@ -1,76 +1,8 @@
-<div class="suggestions-app">
-  <!-- En-tête minimaliste -->
-  <div class="page-header">
-    <h1>✨ Suggestions</h1>
-    <p class="subtitle">Découvrez et votez pour les meilleures idées</p>
-  </div>
+<!-- Debug info (remove in production) -->
+<div *ngIf="suggestions.length === 0" class="alert alert-info">
+  Aucune suggestion dans la liste
+</div>
 
-  <!-- Barre de recherche élégante -->
-  <div class="search-section">
-    <div class="search-wrapper">
-      <input 
-        type="text" 
-        [(ngModel)]="searchTerm" 
-        placeholder="Rechercher une suggestion..."
-        class="search-input"
-      >
-      <span class="search-icon">🔍</span>
-    </div>
-    
-    <select [(ngModel)]="filteredCategory" class="category-select">
-      <option value="">Toutes les catégories</option>
-      <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-    </select>
-  </div>
-
-  <!-- Grille de suggestions -->
-  <div class="suggestions-grid">
-    <div *ngFor="let s of filteredSuggestions" class="suggestion-card" [class.refused]="s.status === 'refuse'">
-      <!-- Badges flottants -->
-      <div class="card-badges">
-        <span class="badge category">{{ s.category }}</span>
-        <span class="badge status" [ngClass]="s.status">{{ s.status }}</span>
-      </div>
-
-      <!-- Contenu de la carte -->
-      <h3 class="card-title">{{ s.title }}</h3>
-      <p class="card-description">{{ s.description }}</p>
-
-      <!-- Métadonnées -->
-      <div class="card-meta">
-        <span class="date">📅 {{ s.date | date:'dd MMM yyyy' }}</span>
-        <span class="likes">❤️ {{ s.nbLikes }} likes</span>
-      </div>
-
-      <!-- Actions -->
-      <div class="card-actions" *ngIf="s.status !== 'refuse'">
-        <button class="btn-like" (click)="likeSuggestion(s)" [disabled]="s.isFavorite">
-          <span class="btn-icon">👍</span>
-          J'aime
-        </button>
-        <button class="btn-favorite" (click)="addToFavorites(s)" [disabled]="s.isFavorite">
-          <span class="btn-icon">⭐</span>
-          {{ s.isFavorite ? 'Favori' : 'Ajouter' }}
-        </button>
-        <!-- BOUTON DÉTAILS AJOUTÉ ICI -->
-        <button [routerLink]="['/suggestions', s.id]" class="btn-details">
-          <span class="btn-icon">🔍</span>
-          Détails
-        </button>
-      </div>
-      <div class="refused-message" *ngIf="s.status === 'refuse'">
-        ⛔ Suggestion non disponible
-      </div>
-    </div>
-  </div>
-
-  <!-- Section Favoris -->
-  <div class="favorites-section" *ngIf="favorites.length > 0">
-    <h2>⭐ Vos favoris <span class="favorites-count">{{ favorites.length }}</span></h2>
-    <div class="favorites-list">
-      <span *ngFor="let f of favorites" class="favorite-tag">
-        {{ f.title }}
-      </span>
-    </div>
-  </div>
+<div *ngIf="filteredSuggestions.length === 0 && suggestions.length > 0" class="alert alert-warning">
+  Aucune suggestion ne correspond à vos filtres
 </div>
