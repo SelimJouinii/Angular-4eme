@@ -1,8 +1,38 @@
-<!-- Debug info (remove in production) -->
-<div *ngIf="suggestions.length === 0" class="alert alert-info">
-  Aucune suggestion dans la liste
-</div>
-
-<div *ngIf="filteredSuggestions.length === 0 && suggestions.length > 0" class="alert alert-warning">
-  Aucune suggestion ne correspond à vos filtres
+<div class="container mt-4">
+  <h2>Liste des suggestions</h2>
+  
+  <div *ngIf="suggestions.length > 0; else noSuggestions">
+    <div class="row">
+      <div class="col-md-4 mb-4" *ngFor="let suggestion of suggestions">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ suggestion.title }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{ suggestion.category }}</h6>
+            <p class="card-text">{{ suggestion.description | slice:0:100 }}...</p>
+            <p class="card-text">
+              <small class="text-muted">Date: {{ suggestion.date | date:'shortDate' }}</small><br>
+              <small class="text-muted">Statut: {{ suggestion.status || 'en attente' }}</small><br>
+              <small class="text-muted">Likes: {{ suggestion.nbLikes || 0 }}</small>
+            </p>
+            <div class="btn-group" role="group">
+              <button class="btn btn-sm btn-info" (click)="viewDetails(suggestion.id)">Détails</button>
+              <button class="btn btn-sm btn-warning" (click)="editSuggestion(suggestion.id)">Modifier</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteSuggestion(suggestion.id)">Supprimer</button>
+              <button class="btn btn-sm btn-success" (click)="likeSuggestion(suggestion.id)">Like</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <ng-template #noSuggestions>
+    <div class="alert alert-info">
+      Aucune suggestion trouvée.
+    </div>
+  </ng-template>
+  
+  <div class="mt-3">
+    <button class="btn btn-primary" routerLink="/add-suggestion">Ajouter une suggestion</button>
+  </div>
 </div>

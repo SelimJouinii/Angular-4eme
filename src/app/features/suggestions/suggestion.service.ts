@@ -1,62 +1,61 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { Suggestion } from '../../models/suggestion';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+// Make sure this interface is EXPORTED
+export interface Suggestion {
+  id?: number;
+  title: string;
+  description: string;
+  category: string;
+  date?: Date;
+  status?: string;
+  nbLikes?: number;
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root'  // This makes the service available app-wide
 })
-export class SuggestionService {
-  private suggestions: Suggestion[] = [];
-  private suggestionsSubject = new BehaviorSubject<Suggestion[]>([]);
+export class SuggestionsService {  // Make sure the class name matches exactly
+  // Local data for Part 1
+  private suggestionList: Suggestion[] = [
+    { id: 1, title: 'Améliorer l\'interface', description: 'Ajouter un thème sombre', category: 'UI/UX', nbLikes: 5 },
+    { id: 2, title: 'Ajouter la recherche', description: 'Permettre de rechercher des suggestions', category: 'Fonctionnalité', nbLikes: 3 },
+    { id: 3, title: 'Notifications', description: 'Alerter quand une suggestion est approuvée', category: 'Communication', nbLikes: 7 }
+  ];
 
-  constructor() {
-    this.loadMockData();
+  // Backend URL
+  private suggestionUrl = 'http://localhost:3000/suggestions';
+
+  constructor(private http: HttpClient) { }  // Inject HttpClient
+
+  // Part 1: Local method
+  getSuggestionsListLocal(): Suggestion[] {
+    return this.suggestionList;
   }
 
-  getSuggestions(): Observable<Suggestion[]> {
-    return this.suggestionsSubject.asObservable();
+  // Part 2: HTTP methods
+  getSuggestionsList(): Observable<Suggestion[]> {
+    return this.http.get<Suggestion[]>(this.suggestionUrl);
   }
 
-  addSuggestion(suggestion: Suggestion): void {
-    console.log('Adding suggestion:', suggestion); // Debug log
-    
-    // Generate new ID (auto-increment)
-    const newId = this.suggestions.length > 0 
-      ? Math.max(...this.suggestions.map(s => s.id)) + 1 
-      : 1;
-    
-    suggestion.id = newId;
-    
-    // Create a new array to trigger change detection
-    this.suggestions = [...this.suggestions, suggestion];
-    
-    console.log('Updated suggestions array:', this.suggestions); // Debug log
-    
-    // Emit the new array
-    this.suggestionsSubject.next(this.suggestions);
+  getSuggestionById(id: number): Observable<Suggestion> {
+    return this.http.get<Suggestion>(`${this.suggestionUrl}/${id}`);
   }
 
-  private loadMockData(): void {
-    this.suggestions = [
-      {
-        id: 1,
-        title: 'Amélioration wifi',
-        description: 'Améliorer la connexion wifi dans les salles de classe',
-        category: 'Technologie et services numériques',
-        date: new Date('2025-11-20'),
-        status: 'en_attente',
-        nbLikes: 5
-      },
-      {
-        id: 2,
-        title: 'Nouveau menu',
-        description: 'Ajouter des options végétariennes à la cafétéria',
-        category: 'Restauration et cafétéria',
-        date: new Date('2025-11-21'),
-        status: 'acceptée',
-        nbLikes: 3
-      }
-    ];
-    this.suggestionsSubject.next(this.suggestions);
+  deleteSuggestion(id: number): Observable<any> {
+    return this.http.delete(`${this.suggestionUrl}/${id}`);
+  }
+
+  addSuggestion(suggestion: Suggestion): Observable<Suggestion> {
+    return this.http.post<Suggestion>(this.suggestionUrl, suggestion);
+  }
+
+  updateSuggestion(id: number, suggestion: Suggestion): Observable<Suggestion> {
+    return this.http.put<Suggestion>(`${this.suggestionUrl}/${id}`, suggestion);
+  }
+
+  likeSuggestion(id: number): Observable<any> {
+    return this.http.patch(`${this.suggestionUrl}/${id}/like`, {});
   }
 }

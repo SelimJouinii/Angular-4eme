@@ -1,8 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SuggestionsComponent } from './suggestions.component';
-import { ListSuggestionComponent  } from './suggestion-list/suggestion-list.component';
+import { SuggestionListComponent  } from './suggestion-list/suggestion-list.component';
 import { SuggestionDetailsComponent } from './suggestion-details/suggestion-details.component';
+import { ListSuggestionComponent } from '../../core/list-suggestion/list-suggestion.component';
 
 const routes: Routes = [
   { 

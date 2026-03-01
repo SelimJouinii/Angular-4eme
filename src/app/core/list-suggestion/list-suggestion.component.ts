@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { SuggestionService } from '../../features/suggestions/suggestion.service';
+import { SuggestionsService } from '../../features/suggestions/suggestion.service';
 import { Suggestion } from '../../models/suggestion';
 import { Subscription } from 'rxjs';
 
@@ -30,10 +30,10 @@ export class ListSuggestionComponent implements OnInit, OnDestroy {
     'Autre'
   ];
 
-  constructor(private suggestionService: SuggestionService) {}
+  constructor(private suggestionService: SuggestionsService) {}
 
   ngOnInit(): void {
-    this.subscription = this.suggestionService.getSuggestions().subscribe((suggestions: Suggestion[]) => {
+    this.subscription = this.suggestionService.getSuggestionsList().subscribe((suggestions: Suggestion[]) => {
       console.log('Received suggestions:', suggestions);
       this.suggestions = suggestions;
       this.applyFilters(); // Apply filters whenever suggestions change

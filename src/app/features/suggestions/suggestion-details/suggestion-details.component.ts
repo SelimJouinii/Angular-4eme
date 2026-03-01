@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Suggestion } from '../../../models/suggestion';
+import { SuggestionsService, Suggestion } from '../suggestion.service';
 
 @Component({
   selector: 'app-suggestion-details',
@@ -8,25 +8,40 @@ import { Suggestion } from '../../../models/suggestion';
   styleUrls: ['./suggestion-details.component.css']
 })
 export class SuggestionDetailsComponent implements OnInit {
-  suggestion: Suggestion | undefined;
-  
-  // Pour l'exemple, on recrée la liste (idéalement via un service)
-  suggestions: Suggestion[] = [
-    { id: 1, title: 'Organiser une journée team building', description: '...', category: 'Événements', date: new Date('2025-01-20'), status: 'acceptée', nbLikes: 10, isFavorite: false },
-    { id: 2, title: 'Améliorer le système de réservation', description: '...', category: 'Technologie', date: new Date('2025-01-15'), status: 'refuse', nbLikes: 0, isFavorite: false },
-    { id: 3, title: 'Créer un système de récompenses', description: '...', category: 'Ressources Humaines', date: new Date('2025-01-25'), status: 'refuse', nbLikes: 0, isFavorite: false },
-    { id: 4, title: 'Moderniser l\'interface utilisateur', description: '...', category: 'Technologie', date: new Date('2025-01-30'), status: 'en_attente', nbLikes: 0, isFavorite: false }
-  ];
+  suggestion: Suggestion | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router
-  ) {}
+    private router: Router,
+    private suggestionService: SuggestionsService
+  ) { }
 
   ngOnInit(): void {
-    // Récupérer l'ID depuis l'URL
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.suggestion = this.suggestions.find(s => s.id === id);
+    const id = Number(this.route.snapshot.params['id']);
+    if (id) {
+      this.loadSuggestion(id);
+    }
+  }
+
+  loadSuggestion(id: number): void {
+    // This should be getSuggestionById (check if your service has this)
+    this.suggestionService.getSuggestionById(id).subscribe({
+      next: (data: Suggestion) => {
+        this.suggestion = data;
+      },
+      error: (err: any) => {
+        console.error('Error loading suggestion:', err);
+        // Fallback to local data
+        const localSuggestions = this.suggestionService.getSuggestionsListLocal();
+        this.suggestion = localSuggestions.find((s: Suggestion) => s.id === id) || null;
+      }
+    });
+  }
+
+  updateSuggestion(): void {
+    if (this.suggestion?.id) {
+      this.router.navigate(['/edit-suggestion', this.suggestion.id]);
+    }
   }
 
   goBack(): void {

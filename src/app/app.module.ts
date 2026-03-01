@@ -1,35 +1,36 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { provideHttpClient } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { HomeComponent } from './core/home/home.component';
 
+import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { SuggestionListComponent } from './features/suggestions/suggestion-list/suggestion-list.component';
+import { SuggestionDetailsComponent } from './features/suggestions/suggestion-details/suggestion-details.component';
+import { SuggestionFormComponent } from './features/suggestions/suggestion-form/suggestion-form.component';
+import { HomeComponent } from './core/home/home.component'; // IMPORT THIS
 import { HeaderComponent } from './core/header/header.component';
 import { FooterComponent } from './core/footer/footer.component';
-import { ListSuggestionComponent } from './core/list-suggestion/list-suggestion.component';
-import { SuggestionFormComponent } from './features/suggestions/suggestion-form/suggestion-form.component';
-import { AppRoutingModule } from './app-routing.module';
-
-// Services
-import { SuggestionService } from './features/suggestions/suggestion.service';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent,
+    HomeComponent, // ADD THIS
+    SuggestionListComponent,
+    SuggestionDetailsComponent,
+    SuggestionFormComponent,
     HeaderComponent,
-    FooterComponent,
-    ListSuggestionComponent,
-    SuggestionFormComponent
+    FooterComponent
   ],
   imports: [
     BrowserModule,
+    AppRoutingModule,
     FormsModule,
-    ReactiveFormsModule,
-    AppRoutingModule
+    ReactiveFormsModule
   ],
-  providers: [SuggestionService], // Add the service here
+  providers: [
+    provideHttpClient()
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

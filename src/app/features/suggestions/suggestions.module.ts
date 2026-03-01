@@ -5,9 +5,10 @@ import { RouterModule } from '@angular/router';
 
 import { SuggestionsRoutingModule } from './suggestions-routing.module';
 import { SuggestionsComponent } from './suggestions.component';
-import { ListSuggestionComponent  } from './suggestion-list/suggestion-list.component';
+import { SuggestionListComponent  } from './suggestion-list/suggestion-list.component';
 import { SuggestionDetailsComponent } from './suggestion-details/suggestion-details.component';
 import { SuggestionFormComponent } from './suggestion-form/suggestion-form.component';
+import { ListSuggestionComponent } from '../../core/list-suggestion/list-suggestion.component';
 
 
 @NgModule({

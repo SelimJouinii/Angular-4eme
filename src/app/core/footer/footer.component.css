@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  width: 100%;
+  background: #f8f9fa;
+  padding: 15px 0;
+  text-align: center;
+  border-top: 1px solid #dee2e6;
+  margin-top: auto;
+}
+
+footer {
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  margin: 0;
+  color: #6c757d;
+}

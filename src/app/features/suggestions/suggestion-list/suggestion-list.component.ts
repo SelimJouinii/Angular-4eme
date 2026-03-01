@@ -1,59 +1,70 @@
 import { Component, OnInit } from '@angular/core';
-import { SuggestionService } from '../suggestion.service';
-import { Suggestion } from '../../../models/suggestion';
+import { Router } from '@angular/router';
+import { SuggestionsService, Suggestion } from '../suggestion.service';
 
 @Component({
-  selector: 'app-list-suggestion',
-  templateUrl: './list-suggestion.component.html',
-  styleUrls: ['./list-suggestion.component.css']
+  selector: 'app-suggestion-list',
+  templateUrl: './suggestion-list.component.html',
+  styleUrls: ['./suggestion-list.component.css']
 })
-export class ListSuggestionComponent implements OnInit {
+export class SuggestionListComponent implements OnInit {
   suggestions: Suggestion[] = [];
-  filteredSuggestions: Suggestion[] = [];
-  searchTerm: string = '';
-  filteredCategory: string = 'all';
-  categories: string[] = [
-    'all',
-    'Infrastructure et bâtiments',
-    'Technologie et services numériques',
-    'Restauration et cafétéria',
-    'Hygiène et environnement',
-    'Transport et mobilité',
-    'Activités et événements',
-    'Sécurité',
-    'Communication interne',
-    'Accessibilité',
-    'Autre'
-  ];
 
-  constructor(private suggestionService: SuggestionService) {}
+  constructor(
+    private suggestionService: SuggestionsService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.suggestionService.getSuggestions().subscribe(suggestions => {
-      this.suggestions = suggestions;
-      this.applyFilters();
+    this.loadSuggestions();
+  }
+
+  loadSuggestions(): void {
+    // FIXED: Use getSuggestionsList() not getSuggestions()
+    this.suggestionService.getSuggestionsList().subscribe({
+      next: (data: Suggestion[]) => {
+        this.suggestions = data;
+      },
+      error: (err: any) => {
+        console.error('Error loading suggestions, using local data:', err);
+        this.suggestions = this.suggestionService.getSuggestionsListLocal();
+      }
     });
   }
 
-  applyFilters(): void {
-    this.filteredSuggestions = this.suggestions.filter(suggestion => {
-      const matchesSearch = suggestion.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                           suggestion.description.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const matchesCategory = this.filteredCategory === 'all' || suggestion.category === this.filteredCategory;
-      return matchesSearch && matchesCategory;
+  deleteSuggestion(id: number | undefined): void {
+    if (!id) return;
+    
+    if (confirm('Voulez-vous vraiment supprimer cette suggestion?')) {
+      this.suggestionService.deleteSuggestion(id).subscribe({
+        next: () => {
+          this.loadSuggestions();
+        },
+        error: (err: any) => console.error('Error deleting suggestion:', err)
+      });
+    }
+  }
+
+  likeSuggestion(id: number | undefined): void {
+    if (!id) return;
+    
+    this.suggestionService.likeSuggestion(id).subscribe({
+      next: () => {
+        this.loadSuggestions();
+      },
+      error: (err: any) => console.error('Error liking suggestion:', err)
     });
   }
 
-  onSearch(): void {
-    this.applyFilters();
+  viewDetails(id: number | undefined): void {
+    if (id) {
+      this.router.navigate(['/suggestion', id]);
+    }
   }
 
-  onCategoryChange(): void {
-    this.applyFilters();
-  }
-
-  likeSuggestion(id: number): void {
-    // Implement like functionality if needed
-    console.log('Like suggestion:', id);
+  editSuggestion(id: number | undefined): void {
+    if (id) {
+      this.router.navigate(['/edit-suggestion', id]);
+    }
   }
 }

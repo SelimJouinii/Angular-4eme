@@ -1,0 +1,29 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+}
+
+app-header {
+  flex-shrink: 0;
+}
+
+.content-wrapper {
+  flex: 1 0 auto;
+  padding: 20px;
+  margin-bottom: 20px; /* Add space before footer */
+}
+
+app-footer {
+  flex-shrink: 0;
+  width: 100%;
+  background: #f8f9fa; /* Match your footer color */
+  padding: 10px 0;
+  text-align: center;
+  border-top: 1px solid #ddd;
+  position: relative; /* Change from fixed to relative */
+  bottom: auto;
+  left: auto;
+  z-index: auto;
+}
